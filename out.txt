@@ -1,0 +1,468 @@
+/**
+ * class implementing a double-linked node
+ * @author Talor Anderson
+ * @version 1.0
+ */
+ public class DNode<T> {
+  T data;
+  DNode front;
+  DNode back;
+  
+  public DNode(){ this(null,null,null); }
+  public DNode(T data){ this(data,null,null); }
+  
+  public DNode(T nodeData, DNode frontNode, DNode backNode) {
+    data = nodeData;
+    front = frontNode;
+    back = backNode;
+  }
+  
+  public void setData(T newData)      { data = newData; }
+  public void setFront(DNode newPrev) { front = newPrev; }
+  public void setBack(DNode newNext)  { back = newNext; }
+  
+  public T getData()      { return data; }
+  public DNode getFront() { return front; }
+  public DNode getBack()  { return back; }
+}import java.util.Arrays;
+
+/**
+ * ListArray
+ */
+public class ListArray<T> implements ListInterface<T> {
+  private T[] list = (T[]) new Object[10];
+  private int lastIndex = -1;
+
+  public void add(T newEntry) {
+    if (!isFull()) {
+      lastIndex++;
+      list[lastIndex] = newEntry;
+    }
+  }
+
+  public void add(int position, T newEntry) {
+    for(int i=lastIndex+1; i <= position; i++) {
+      list[i-1] = list[i];
+    }
+    list[position] = newEntry;
+  }
+
+  public T replace(int position, T newEntry) {
+    T oldEntry = list[position];
+    list[position] = newEntry;
+    return oldEntry;
+  }
+
+  public T getEntry(int position) {
+    return list[position];
+  }
+
+  public T remove(int position) {
+    T entry = list[position];
+    return entry;
+  }
+
+  public void clear() {
+    for (int i = 0; i <= lastIndex; i++) {
+      list[i] = null;
+    }
+  }
+
+  public boolean isFull() {
+    return lastIndex == 9;
+  }
+
+  public T[] toArray() {
+    return Arrays.copyOf(list, 10);
+  }
+
+  public boolean contains(T anEntry) {
+    for (int i = 0; i <= lastIndex; i++) {
+      if (list[i] == anEntry)
+        return true;
+    }
+    return false;
+  }
+
+  public int getLength() {
+    return lastIndex + 1;
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return lastIndex == -1;
+  }
+}/**
+ * ListInterface
+ */
+public interface ListInterface<T> {
+  public void add(T newEntry);
+  public void add(int position, T newEntry);
+  public T remove(int position);
+  public void clear();
+  public T replace(int position, T newEntry);
+  public T getEntry(int position);
+  public T[] toArray();
+  public boolean contains(T anEntry);
+  public int getLength();
+  public boolean isEmpty();
+}/**
+ * ListSingle
+ */
+public class ListSingle<T> implements ListInterface<T> {
+  private SNode front = null;
+  private SNode back = null;
+
+  public void add(T newEntry) {
+    SNode newNode = new SNode(newEntry);
+    if (isEmpty()) {
+      front = newNode;
+      back = newNode;
+    } else {
+      back.setLink(newNode);
+    }
+  }
+
+  public void add(int position, T newEntry) {
+    SNode newNode = new SNode(newEntry);
+    if (position == 0) {
+      newNode.setLink(front);
+      front = newNode;
+    } else {
+      SNode before = getNodeAt(position);
+      SNode after = before.getLink();
+      before.setLink(newNode);
+      newNode.setLink(after);
+      if (after == null) {
+        back = newNode;
+      }
+    }
+  }
+
+  public T remove(int position) {
+    if (position == 0) {
+      T data = (T)front.getData();
+      front = front.getLink();
+      return data;
+    } else {
+      SNode before = getNodeAt(position - 1);
+      SNode toRemove = before.getLink();
+      SNode after = toRemove.getLink();
+      before.setLink(after);
+      return (T)toRemove.getData();
+    }
+  }
+
+  public T replace(int position, T newEntry) {
+    SNode node = getNodeAt(position);
+    T data = (T)node.getData();
+    node.setData(newEntry);
+    return data;
+  }
+  public T getEntry(int position) {
+    return (T)getNodeAt(position).getData();
+  }
+
+  public SNode getNodeAt(int position) {
+    SNode current = front;
+    for (int count = 1; count < position; count++) {
+      current = current.getLink();
+    }
+    return current;
+  }
+
+  public void clear() {
+    front = null;
+    back = null;
+  }
+
+  public boolean contains(T anEntry) {
+    SNode current = front;
+    while (current != null) {
+      if ((T)current.getData() == anEntry)
+        return true;
+      current = current.getLink();
+    }
+    return false;
+  }
+  public int getLength() {
+    int length = 0;
+    SNode current = front;
+    while (current != null) {
+      length++;
+      current = current.getLink();
+    }
+    return length;
+  }
+  public T[] toArray() {
+    T[] arr = (T[])new Object[getLength()];
+    int pos = 0;
+    SNode current = front;
+    while (pos < getLength()) {
+      arr[pos] = (T)current.getData();
+      current = current.getLink();
+      pos++;
+    }
+    return arr;
+  }
+  public boolean isEmpty() {
+    return front == null;
+  }
+}/**
+   An interface for the ADT priority queue.
+   @author Frank M. Carrano
+   @author Timothy M. Henry
+   @version 4.0
+*/
+public interface PriorityQueueInterface<T extends Comparable<? super T>>
+{
+   /** Adds a new entry to this priority queue.
+       @param newEntry  An object to be added. */
+   public void add(T newEntry);
+
+   /** Removes and returns the entry having the highest priority.
+       @return  Either the object having the highest priority or,
+                if the priority queue is empty before the operation, null. */
+   public T remove();
+
+   /** Retrieves the entry having the highest priority.
+       @return  Either the object having the highest priority or,
+                if the priority queue is empty, null. */
+   public T peek();
+
+   /** Detects whether this priority queue is empty.
+       @return  True if the priority queue is empty, or false otherwise. */
+   public boolean isEmpty();
+
+   /** Gets the size of this priority queue.
+       @return  The number of entries currently in the priority queue. */
+   public int getSize();
+
+   /** Removes all entries from this priority queue. */
+   public void clear();
+} // end PriorityQueueInterface
+/**
+ * PriorityQueue
+ */
+public class PriorityQueue<T extends Comparable<? super T>> implements PriorityQueueInterface<T> {
+  SNode front;
+  SNode back;
+
+  @Override
+  public void add(T newEntry) {
+    SNode newNode =  new SNode();
+    newNode.setData(newEntry);
+
+    if(back == null) {
+      back = newNode;
+      front = newNode;
+    }
+    if (newEntry.compareTo((T)back.getData()) > 0) {
+      back.setLink(newNode);
+      back = newNode;
+    } else if (newEntry.compareTo((T)front.getData()) < 0) {
+      newNode.setLink(front);
+      front = newNode;
+    } else {
+      SNode prev = front;
+      while(newEntry.compareTo((T)prev.getLink().getData()) < 0) {
+        prev = prev.getLink();
+      }
+      SNode next = prev.getLink();
+      prev.setLink(newNode);
+      newNode.setLink(next);
+    }
+  }
+  public T remove() {
+    SNode removed = front;
+    if(back == front) {
+      back = null;
+      front = null;
+    } else {
+      front = front.getLink();
+    }
+    return (T)removed.getData();
+  }
+  
+  public T peek(){
+    if (front == null) return null;
+    return (T)front.getData();
+  }
+  
+  public boolean isEmpty() {
+    return front == null;
+  }
+  
+  public int getSize(){
+    if (isEmpty()) return 0;
+    int count = 1;
+    SNode current = front;
+    while(current.getLink() != null) {
+      count++;
+      current = current.getLink();
+    }
+    return count;
+  }
+  
+  public void clear() {
+    front = null;
+    back = null;
+  }
+  
+}/**
+ * class implementing a single-linked node
+ * @author Talor Anderson
+ * @version 1.0
+ */
+ public class SNode<T> {
+  T data;
+  SNode link;
+  
+  public SNode() {
+    this(null,null);
+  }
+  public SNode(T d) {
+    this(d, null);
+  }
+  public SNode(T d, SNode l){
+    data = d;
+    link = l;
+  }
+  public void setData(T newData)      { data = newData; }
+  public void setLink(SNode newLink) { link = newLink; }
+
+  public T getData()      { return data; }
+  public SNode getLink() { return link; }
+}/**
+ * SortedListInterface
+ */
+public interface SortedListInterface<T extends Comparable<? super T>> {
+  public void add(T newEntry);
+  public T remove(T anEntry);
+  public int getPosition(T anEntry);
+  public T getEntry(int position);
+  public boolean contains(T anEntry);
+  public T remove(int givenPosition);
+  public void clear();
+  public T[] toArray();
+  public int getLength();
+  public boolean isEmpty();
+}
+/**
+ * SortedListSingle
+ */
+public class SortedListSingle<T extends Comparable<? super T>> implements SortedListInterface<T> {
+  SNode front;
+  SNode back;
+
+  @Override
+  public void add(T newEntry) {
+    SNode newNode =  new SNode();
+    newNode.setData(newEntry);
+
+    if(back == null) {
+      back = newNode;
+      front = newNode;
+    }
+    if (newEntry.compareTo((T)back.getData()) > 0) {
+      back.setLink(newNode);
+      back = newNode;
+    } else if (newEntry.compareTo((T)front.getData()) < 0) {
+      newNode.setLink(front);
+      front = newNode;
+    } else {
+      SNode prev = front;
+      while(newEntry.compareTo((T)prev.getLink().getData()) < 0) {
+        prev = prev.getLink();
+      }
+      SNode next = prev.getLink();
+      prev.setLink(newNode);
+      newNode.setLink(next);
+    }
+  }
+  public SNode getNodeAt(int position) {
+    SNode current = front;
+    for (int count = 1; count < position; count++) {
+      current = current.getLink();
+    }
+    return current;
+  }
+  @Override
+  public T remove(T anEntry) {
+    remove(getPosition(anEntry));
+    return anEntry;
+  }
+    public T remove(int position) {
+    if (position == 0) {
+      T data = (T)front.getData();
+      front = front.getLink();
+      return data;
+    } else {
+      SNode before = getNodeAt(position - 1);
+      SNode toRemove = before.getLink();
+      SNode after = toRemove.getLink();
+      before.setLink(after);
+      return (T)toRemove.getData();
+    }
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return front == null;
+  }
+  
+  @Override
+  public int getLength(){
+    if (isEmpty()) return 0;
+    int count = 1;
+    SNode current = front;
+    while(current.getLink() != null) {
+      count++;
+      current = current.getLink();
+    }
+    return count;
+  }
+  @Override
+  public void clear() {
+    front = null;
+    back = null;
+  }
+  @Override
+  public T[] toArray() {
+    T[] arr = (T[])new Object[getLength()];
+    int pos = 0;
+    SNode current = front;
+    while (pos < getLength()) {
+      arr[pos] = (T)current.getData();
+      current = current.getLink();
+      pos++;
+    }
+    return arr;
+  }
+  @Override
+  public boolean contains(T anEntry) {
+    SNode current = front;
+    while (current != null) {
+      if ((T)current.getData() == anEntry)
+        return true;
+      current = current.getLink();
+    }
+    return false;
+  }
+  @Override
+  public T getEntry(int position) {
+    return (T)getNodeAt(position).getData();
+  }
+  @Override
+  public int getPosition(T anEntry) {
+      SNode current = front;
+      int pos = 0;
+      while(current != null) {
+        if(anEntry == (T)current.getData()){
+          return pos;
+        } 
+        current = current.getLink();
+      }
+      return -1;
+  }
+}
